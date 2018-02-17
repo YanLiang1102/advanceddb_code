@@ -1,0 +1,389 @@
+//******************************************************************************
+// Copyright (C) 2016 University of Oklahoma Board of Trustees.
+//******************************************************************************
+// Last modified: Tue Feb  9 20:33:16 2016 by Chris Weaver
+//******************************************************************************
+// Major Modification History:
+//
+// 20160209 [weaver]:	Original file.
+//
+//******************************************************************************
+// Notes:
+//
+//******************************************************************************
+
+package edu.ou.cs.cg.homework;
+
+//import java.lang.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.*;
+import java.util.Random;
+import javax.swing.*;
+import javax.media.opengl.*;
+import javax.media.opengl.awt.GLCanvas;
+import javax.media.opengl.glu.*;
+import com.jogamp.opengl.util.*;
+import com.jogamp.opengl.util.awt.TextRenderer;
+import com.jogamp.opengl.util.gl2.GLUT;
+
+//******************************************************************************
+
+/**
+ * The <CODE>Homework02</CODE> class.<P>
+ *
+ * @author  YanLiang
+ * @version %I%, %G%
+ */
+public final class Homework02
+	implements GLEventListener
+{
+	//**********************************************************************
+	// Public Class Members
+	//**********************************************************************
+
+	public static final GLU		GLU = new GLU();
+	public static final GLUT	GLUT = new GLUT();
+	public static final Random	RANDOM = new Random();
+
+	//**********************************************************************
+	// Private Members
+	//**********************************************************************
+
+	// State (internal) variables
+	private int				k = 0;		// Just an animation counter
+
+	private int				w;			// Canvas width
+	private int				h;			// Canvas height
+	private TextRenderer	renderer;
+
+	//**********************************************************************
+	// Main
+	//**********************************************************************
+
+	public static void main(String[] args)
+	{
+		GLProfile		profile = GLProfile.getDefault();
+		GLCapabilities	capabilities = new GLCapabilities(profile);
+		GLCanvas		canvas = new GLCanvas(capabilities);
+		JFrame			frame = new JFrame("Homework02");
+
+		canvas.setPreferredSize(new Dimension(1500, 800));
+
+		frame.setBounds(50, 50, 600, 600);
+		frame.getContentPane().add(canvas);
+		frame.pack();
+		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+       // frame.setBackground(Color.WHITE);
+		frame.addWindowListener(new WindowAdapter() {
+				public void windowClosing(WindowEvent e) {
+					System.exit(0);
+				}
+			});
+
+		canvas.addGLEventListener(new Homework02());
+		//canvas.glClear();
+		//canvas.setColor(0.0f,1.0f,0.0f,0.0F);
+
+		//turn off the animation for now.
+		//FPSAnimator		animator = new FPSAnimator(canvas, 60);
+
+		//animator.start();
+	}
+
+	//**********************************************************************
+	// Override Methods (GLEventListener)
+	//**********************************************************************
+
+	public void		init(GLAutoDrawable drawable)
+	{
+		w = drawable.getWidth();
+		h = drawable.getHeight();
+        
+		renderer = new TextRenderer(new Font("Serif", Font.PLAIN, 18),
+									true, true);
+	}
+
+	public void		dispose(GLAutoDrawable drawable)
+	{
+		renderer = null;
+	}
+
+	public void		display(GLAutoDrawable drawable)
+	{
+		update();
+		render(drawable);
+	}
+
+	public void		reshape(GLAutoDrawable drawable, int x, int y, int w, int h)
+	{
+		this.w = w;
+		this.h = h;
+	}
+
+	//**********************************************************************
+	// Private Methods (Rendering)
+	//**********************************************************************
+
+	private void	update()
+	{
+		k++;									// Counters are useful, right?
+	}
+
+	private void	render(GLAutoDrawable drawable)
+	{
+		GL2		gl = drawable.getGL().getGL2();
+        gl.glClearColor(0.573f, 0.573f, 0.573f, 1.0f);
+		gl.glClear(GL.GL_COLOR_BUFFER_BIT);		// Clear the buffer
+
+		//setProjection(gl);						// Use a coordinate system
+
+		drawSomething(gl);						// Draw something
+		drawSomeText(drawable);					// Draw some text
+	}
+
+	//**********************************************************************
+	// Private Methods (Coordinate System)
+	//**********************************************************************
+
+	private void	setProjection(GL2 gl)
+	{
+		GLU		glu = new GLU();
+
+		gl.glMatrixMode(GL2.GL_PROJECTION);			// Prepare for matrix xform
+		gl.glLoadIdentity();						// Set to identity matrix
+		glu.gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);	// 2D translate and scale
+	}
+
+	//**********************************************************************
+	// Private Methods (Scene)
+	//**********************************************************************
+
+	// This page is helpful (scroll down to "Drawing Lines and Polygons"):
+	// http://www.linuxfocus.org/English/January1998/article17.html
+	private void	drawSomething(GL2 gl)
+	{
+		gl.glBegin(GL.GL_POINTS);
+
+		gl.glColor3f(1.0f, 1.0f, 1.0f);
+		gl.glPointSize(2.0f);
+		gl.glVertex2d(0.0, 0.0);
+		gl.glEnd();
+   
+      //drawing the base
+      // gl.glBegin (GL2.GL_LINES);
+      // gl.glVertex3f(-0.50f, -0.50f, 0);
+      // gl.glVertex3f(0.50f, -0.50f, 0);
+      // gl.glEnd();
+   
+      // //drawing the right edge
+      // gl.glBegin (GL2.GL_LINES);
+      // gl.glVertex3f(0f, 0.50f, 0);
+      // gl.glVertex3f(-0.50f, -0.50f, 0);
+      // gl.glEnd();
+   
+      // //drawing the lft edge
+      // gl.glBegin (GL2.GL_LINES);
+      // gl.glVertex3f(0f, 0.50f, 0);
+      // gl.glVertex3f(0.50f, -0.50f, 0);
+      // gl.glEnd();
+      // gl.glFlush();
+      int numberOfLines=15;
+      for(int i=1;i<=numberOfLines;i++)
+      {
+      	gl.glBegin(GL2.GL_LINES);
+      	//need to do this cast in order to make this work.
+      	float x1=(float)(-1.0f+(2.0/numberOfLines*i));
+      	float x2=(float)(-1.0f+(2.0/numberOfLines*(i+0.75)));
+      	gl.glVertex2f(x1,-1.0f);
+      	gl.glVertex2f(x2,-0.8f);
+      	gl.glEnd();
+
+      }
+      //draw the line on the top and draw the line on the bottom, and if nothing has been set up the line is going to be look like white
+      gl.glBegin(GL2.GL_LINES);
+  	  gl.glVertex2f(-1.0f,-1.0f);
+  	  gl.glVertex2f(1.0f,-1.0f);
+  	  gl.glEnd();
+      float bound1=-0.8f;
+  	  gl.glBegin(GL2.GL_LINES);
+  	  gl.glVertex2f(-1.0f,bound1);
+  	  gl.glVertex2f(1.0f,bound1);
+  	  gl.glEnd();
+
+  	  //seperate the width to be 11 sections
+  	  int sections=11;
+
+
+
+  	float width=0.042f;
+  	float leftheight=0.3f;
+  	float rightheight=.35f;
+  	float start1=-0.98f;
+  	float offset1=0.01f;
+  	//float heightstart1=
+
+    for(int i=0;i<4;i++)
+    {
+        gl.glColor3f(1.0f,1.0f,1.0f);	
+    	drawPolygon(gl,(float)(start1+i*width
+    		),bound1+offset1,leftheight,rightheight,width);
+    	drawPolyBoundary(gl,(float)(start1+i*width
+    		),bound1+offset1,leftheight,rightheight,width);
+    }
+    
+    //set up the first house , need to set the coklor back
+    gl.glColor3f(1.0f,1.0f,1.0f);	
+    float start2=(float)(start1+4*width+offset1);
+    float housewidth=(float)(6.0*width);
+    float househeight=(float)(10.0*width);
+
+    drawPolygon(gl,start2,bound1+offset1,househeight, househeight,housewidth);
+
+    //ok now the first house is done, need to draw another two fences.
+
+    float start3=(float)(start2+offset1+housewidth);
+       for(int i=0;i<4;i++)
+    {
+        gl.glColor3f(1.0f,1.0f,1.0f);	
+    	drawPolygon(gl,(float)(start3+i*width
+    		),bound1+offset1,leftheight,rightheight,width);
+    	drawPolyBoundary(gl,(float)(start3+i*width
+    		),bound1+offset1,leftheight,rightheight,width);
+    }
+     
+     //the diff now is the width of the fence instead of width of the house.
+      float start4=(float)(start3+offset1+4*width);
+       for(int i=0;i<4;i++)
+    {
+        gl.glColor3f(1.0f,1.0f,1.0f);	
+    	drawPolygon(gl,(float)(start4+i*width
+    		),bound1+offset1,leftheight,rightheight,width);
+    	drawPolyBoundary(gl,(float)(start4+i*width
+    		),bound1+offset1,leftheight,rightheight,width);
+    }
+
+    //draw the house in the middle
+    float start5=start4+8*width+offset1;
+    //the second house is little bit upper, so
+    float offset2=0.06f;
+    //set the color back;
+    gl.glColor3f(1.0f,1.0f,1.0f);
+    drawPolygon(gl,start5,bound1+offset2,househeight, househeight,housewidth);
+    
+
+    //now need to draw 8 pieces of fences
+     float start6=(float)(start5+width+housewidth);
+       for(int i=1;i<=8;i++)
+    {
+        gl.glColor3f(1.0f,1.0f,1.0f);	
+        if(i%2==0)
+        {
+        	//if i is even, then the rigfht height is less than the left height.
+        	drawPolygon(gl,(float)(start6+i*width
+    		),bound1+offset1,rightheight,leftheight,width);
+    	drawPolyBoundary(gl,(float)(start6+i*width
+    		),bound1+offset1,rightheight,leftheight,width);
+
+        	continue;
+        }
+    	drawPolygon(gl,(float)(start6+i*width
+    		),bound1+offset1,leftheight,rightheight,width);
+    	drawPolyBoundary(gl,(float)(start6+i*width
+    		),bound1+offset1,leftheight,rightheight,width);
+    }
+
+    //now need to draw the last house, the last house is right adjacent to the fence
+    gl.glColor3f(1.0f,1.0f,1.0f);	
+    float start7=start6+9*width;
+    drawPolygon(gl,start7,bound1+offset1,househeight, househeight,housewidth);
+
+    //now need to draw the last fence
+    float start8=(float)(start7+housewidth-width); //since the index start from 1.
+       for(int i=1;i<=2;i++)
+    {
+        gl.glColor3f(1.0f,1.0f,1.0f);	
+        if(i%2==0)
+        {
+        	//if i is even, then the rigfht height is less than the left height.
+        	drawPolygon(gl,(float)(start8+i*width
+    		),bound1+offset1,rightheight,leftheight,width);
+    	drawPolyBoundary(gl,(float)(start8+i*width
+    		),bound1+offset1,rightheight,leftheight,width);
+
+        	continue;
+        }
+    	drawPolygon(gl,(float)(start8+i*width
+    		),bound1+offset1,leftheight,rightheight,width);
+    	drawPolyBoundary(gl,(float)(start8+i*width
+    		),bound1+offset1,leftheight,rightheight,width);
+    }
+
+
+	}
+
+	private void drawPolyBoundary(GL2 gl,float f1, float f2, float leftheight, float rightheight, float width)
+	{
+		  gl.glBegin(GL2.GL_LINES);
+		  float f3=f1+width;
+		  float f4=f2;
+		  float f5=f3;
+		  float f6=f2+rightheight;
+		  float f7=f1;
+		  float f8=f2+leftheight;
+	  	  gl.glVertex2f(f1,f2);
+	  	  gl.glVertex2f(f3,f4);
+	  	  gl.glColor3f(0.0f,0.0f,0.0f);
+	  	  gl.glEnd();
+
+	  	  gl.glBegin(GL2.GL_LINES);
+	  	  gl.glVertex2f(f3,f4);
+	  	  gl.glVertex2f(f5,f6);
+	  	  //gl.glColor3f(0.0f,0.0f,0.0f);
+	  	  gl.glEnd();
+
+	  	  gl.glBegin(GL2.GL_LINES);
+	  	  gl.glVertex2f(f5,f6);
+	  	  gl.glVertex2f(f7,f8);
+	  	  //gl.glColor3f(0.0f,0.0f,0.0f);
+	  	  gl.glEnd();
+
+	  	  gl.glBegin(GL2.GL_LINES);
+	  	  gl.glVertex2f(f7,f8);
+	  	  gl.glVertex2f(f1,f2);
+	  	  //gl.glColor3f(0.0f,0.0f,0.0f);
+	  	  gl.glEnd();
+	}
+    //this is in counterclock posituon, using the start point to generate the polygon,(f1,f2) is the position of the bottom left.
+	private void drawPolygon(GL2 gl,float f1, float f2, float leftheight, float rightheight, float width)
+	{
+		gl.glBegin(GL2.GL_POLYGON);
+		float f3=f1+width;
+		float f4=f2;
+		float f5=f3;
+		float f6=f2+rightheight;
+		float f7=f1;
+		float f8=f2+leftheight;
+  	    gl.glVertex2f(f1,f2);
+  	    gl.glVertex2f(f3,f4);
+  	    gl.glVertex2f(f5,f6);
+  	    gl.glVertex2f(f7,f8);
+  	    gl.glEnd();
+		  	  
+	}
+
+	// This example on this page is long but helpful:
+	// http://jogamp.org/jogl-demos/src/demos/j2d/FlyingText.java
+	// Warning! Text is drawn in pixel coordinates, not projection coordinates.
+	private void drawSomeText(GLAutoDrawable drawable)
+	{
+		renderer.beginRendering(drawable.getWidth(), drawable.getHeight());
+		System.out.println("width: height:"+drawable.getWidth()+" "+drawable.getHeight());
+		renderer.setColor(1.0f, 1.0f, 0, 1.0f);
+		renderer.draw("This is a point", w/2 + 8, h/2 - 5);
+		renderer.endRendering();
+	}
+}
+
+//******************************************************************************
